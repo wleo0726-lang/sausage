@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17121d">
+  <title>香腸大師 🌭</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <section class="main-menu" id="mainMenu">
+    <div class="menu-stars"></div><div class="menu-orbit orbit-one"></div><div class="menu-orbit orbit-two"></div>
+    <div class="menu-content">
+      <p class="menu-kicker">A COSMIC COOKING ADVENTURE</p>
+      <div class="menu-logo"><span>🌭</span><h1>香腸大師</h1><small>SAUSAGE MASTER</small></div>
+      <button class="menu-player" id="menuProfileBtn"><span class="menu-avatar" id="menuAvatar">👨‍🍳</span><span><b id="menuNickname">星際新手</b><small id="menuLevel">LV.1 · 新手料理師</small></span><span class="menu-arrow">›</span></button>
+      <div class="menu-buttons">
+        <button class="menu-button menu-play" data-open-tab="cook"><span>▶</span> 開始遊戲</button>
+        <button class="menu-button" data-open-tab="friends">好友</button>
+        <button class="menu-button" data-open-tab="leaderboard">排行榜</button>
+        <button class="menu-button" data-open-tab="collection">香腸圖鑑</button>
+        <button class="menu-button" id="openSettingsBtn">設定</button>
+      </div>
+      <p class="menu-footnote">GRILL · FLIP · MASTER</p>
+    </div>
+    <button class="menu-login" id="loginBtn">登入 / 建立玩家帳號</button>
+  </section>
+  <section class="settings-modal hidden" id="settingsModal" aria-label="遊戲設定">
+    <div class="settings-box"><button class="modal-close" id="closeSettingsBtn">×</button><p class="eyebrow">GAME SETTINGS</p><h2>遊戲設定</h2>
+      <label class="setting-row">背景音樂音量 <input id="musicVolume" type="range" min="0" max="100" value="45"></label>
+      <label class="setting-row">特效音量 <input id="effectVolume" type="range" min="0" max="100" value="70"></label>
+      <label class="setting-row">語言 <select id="languageSelect"><option value="zh-Hant">繁體中文</option><option value="en">English</option><option value="ko">한국어</option><option value="ja">日本語</option></select></label>
+      <p class="settings-note">音量與語言選項會先保存在這台裝置。線上帳號功能完成雲端設定後，也會同步至玩家帳號。</p>
+    </div>
+  </section>
+  <section class="login-modal hidden" id="loginModal" aria-label="玩家登入">
+    <div class="settings-box"><button class="modal-close" id="closeLoginBtn">×</button><p class="eyebrow">PLAYER ACCOUNT</p><h2>登入香腸大師</h2>
+      <p class="settings-note">遊戲帳號與 Google 登入都會支援。雲端登入尚需設定專屬 Supabase 專案，現在先保留入口，不會假裝已經連線。</p>
+      <label class="setting-row">電子郵件 <input id="loginEmail" type="email" placeholder="name@example.com"></label>
+      <label class="setting-row">密碼 <input id="loginPassword" type="password" placeholder="至少 8 個字元"></label>
+      <button class="btn btn-primary" id="emailLoginBtn" disabled>帳號登入 / 註冊（待設定雲端）</button>
+      <button class="btn btn-secondary" id="googleLoginBtn" disabled>使用 Google 登入（待設定雲端）</button>
+    </div>
+  </section>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-icon">🌭</span><span>香腸大師<small>SAUSAGE MASTER</small></span></a>
+    <div class="wallet"><span>🪙</span><strong id="money">0</strong><span class="wallet-label">金幣</span></div>
+    <button class="icon-btn" id="soundToggle" aria-label="切換音效" title="切換音效">🔊</button>
+  </header>
+
+  <main class="app-shell">
+    <section class="hero">
+      <div><p class="eyebrow">GRILL · FLIP · MASTER</p><h1>今天也要烤出<span>完美香腸</span></h1><p class="sub">掌握火候、漂亮翻面，讓你的香腸收藏越來越豐富！</p></div>
+      <div class="hero-stats">
+        <div><small>總料理數</small><strong id="totalCooked">0</strong></div>
+        <div><small>最高分</small><strong id="bestScore">0</strong></div>
+        <div><small>收藏進度</small><strong id="collectionSummary">1/61</strong></div>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="遊戲分頁">
+      <button class="tab active" data-tab="cook">🔥 開始料理</button>
+      <button class="tab" data-tab="collection">📖 香腸圖鑑 <span id="collectionTabCount">1/61</span></button>
+      <button class="tab" data-tab="upgrades">⚙️ 設備升級</button>
+      <button class="tab" data-tab="records">🏅 成就紀錄</button>
+      <button class="tab" data-tab="profile">👤 玩家資料</button>
+      <button class="tab" data-tab="friends">🤝 好友</button>
+      <button class="tab" data-tab="leaderboard">🏆 排行榜</button>
+    </nav>
+
+    <section class="page active" id="page-cook">
+      <div class="game-grid">
+        <article class="panel grill-panel">
+          <div class="panel-head"><div><p class="eyebrow">LIVE COOKING</p><h2>烤台</h2></div><span class="status-pill" id="gameStatus">待命中</span></div>
+          <div class="grill-scene" id="grillScene">
+            <div class="scene-stars"></div><div class="smoke smoke-one"></div><div class="smoke smoke-two"></div>
+            <div class="heat-haze"></div>
+            <div class="grill-top"><div class="grill-bars"></div><div class="coal coal-one"></div><div class="coal coal-two"></div><div class="coal coal-three"></div></div>
+            <div class="sausage-stage">
+              <div class="sausage" id="sausage" data-pattern="classic"><span class="sausage-topping" id="sausageTopping"></span><span class="char-marks"></span></div>
+              <div class="special-effect" id="specialEffect"></div>
+            </div>
+            <div class="flame-row"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="grill-front"><span>MASTER GRILL</span><span>🔥 <b id="heatLevelLabel">中火</b></span></div>
+          </div>
+          <div class="cook-meters">
+            <div class="meter-label"><span>🔥 火候</span><strong id="heatReadout">中火</strong></div>
+            <div class="heat-buttons"><button class="heat-btn" data-heat="low">小火</button><button class="heat-btn selected" data-heat="medium">中火</button><button class="heat-btn" data-heat="high">大火</button></div>
+            <div class="meter-label"><span>🌡️ 熟度</span><strong id="donenessText">尚未開始</strong></div>
+            <div class="progress-track"><div class="progress-fill" id="donenessBar"></div><div class="ideal-zone"></div></div>
+            <div class="meter-label tiny"><span>料理時間</span><strong id="cookTime">0.0 秒</strong></div>
+          </div>
+          <div class="cook-actions">
+            <button class="btn btn-primary" id="startBtn">🔥 開始烤製</button>
+            <button class="btn btn-secondary" id="flipBtn" disabled>↻ 翻面</button>
+            <button class="btn btn-gold" id="serveBtn" disabled>🍽️ 完成料理</button>
+          </div>
+          <p class="game-message" id="gameMessage">選擇香腸後，按下「開始烤製」！</p>
+        </article>
+
+        <aside class="side-column">
+          <article class="panel selection-panel">
+            <div class="panel-head"><div><p class="eyebrow">YOUR INGREDIENT</p><h2>選擇香腸</h2></div><span class="tiny-tag">61 種可收集</span></div>
+            <select id="sausageSelect" class="sausage-select"></select>
+            <div class="selected-preview">
+              <div class="preview-icon" id="previewIcon">🌭</div>
+              <div><strong id="selectedName">經典原味</strong><span id="selectedRarity">N · 普通</span></div>
+            </div>
+            <p class="description" id="selectedDescription">最經典的夜市美味。</p>
+            <div class="perk-box"><span>⚡ 專屬能力</span><strong id="selectedPerk">料理分數小幅提升</strong></div>
+            <div class="mastery-box"><div class="meter-label"><span>熟練度</span><strong id="masteryLevel">Lv.1 · 0 XP</strong></div><div class="progress-track"><div class="progress-fill mastery-fill" id="masteryBar"></div></div><small id="masteryNext">再累積經驗提升熟練度</small></div>
+          </article>
+
+          <article class="panel sauce-panel">
+            <div class="panel-head"><div><p class="eyebrow">FLAVOR CUSTOM</p><h2>醬料搭配</h2></div></div>
+            <div class="sauce-options" id="sauceOptions">
+              <button class="sauce-option selected" data-sauce="none"><span>✨</span>原味</button>
+              <button class="sauce-option" data-sauce="honey"><span>🍯</span>蜂蜜</button>
+              <button class="sauce-option" data-sauce="spicy"><span>🌶️</span>辣醬</button>
+              <button class="sauce-option" data-sauce="garlic"><span>🧄</span>蒜香</button>
+              <button class="sauce-option" data-sauce="cheese"><span>🧀</span>起司</button>
+            </div>
+            <div class="mini-tip">小提示：熟度落在 70～90% 且完成翻面，更容易拿到高評價。</div>
+          </article>
+        </aside>
+      </div>
+      <section class="panel result-panel hidden" id="resultPanel">
+        <div class="result-title"><div><p class="eyebrow">COOKING RESULT</p><h2>本次料理成果</h2></div><div class="grade" id="resultGrade">S</div></div>
+        <div class="result-grid">
+          <div><small>料理分數</small><strong id="resultScore">0</strong></div>
+          <div><small>獲得金幣</small><strong id="resultMoney">+0 🪙</strong></div>
+          <div><small>熟練經驗</small><strong id="resultXP">+0 XP</strong></div>
+          <div><small>料理暴擊</small><strong id="resultCrit">無</strong></div>
+        </div>
+        <p id="resultDetail"></p><button class="btn btn-primary" id="nextCookBtn">🌭 再烤一條</button>
+      </section>
+    </section>
+
+    <section class="page" id="page-collection">
+      <div class="section-heading"><div><p class="eyebrow">COLLECTION BOOK</p><h2>香腸收藏圖鑑</h2><p>解鎖、料理並提升每一種香腸的熟練度。</p></div><div class="collection-progress"><strong id="collectionCount">1 / 61</strong><div class="progress-track"><div class="progress-fill" id="collectionBar"></div></div></div></div>
+      <div class="filters" id="rarityFilters"><button class="filter active" data-filter="ALL">全部</button><button class="filter" data-filter="N">普通</button><button class="filter" data-filter="R">稀有</button><button class="filter" data-filter="SR">史詩</button><button class="filter" data-filter="SSR">傳說</button><button class="filter" data-filter="UR">神話</button><button class="filter" data-filter="HIDDEN">隱藏</button></div>
+      <div class="collection-grid" id="collectionGrid"></div>
+    </section>
+
+    <section class="page" id="page-upgrades">
+      <div class="section-heading"><div><p class="eyebrow">GRILL WORKSHOP</p><h2>設備升級</h2><p>投資你的烤台，讓每一次料理都更順手。</p></div><div class="upgrade-wallet">🪙 <strong id="upgradeMoney">0</strong></div></div>
+      <div class="upgrade-grid" id="upgradeGrid"></div>
+    </section>
+
+
+    <section class="page" id="page-profile">
+      <div class="section-heading"><div><p class="eyebrow">PLAYER PROFILE</p><h2>星際玩家資料</h2><p>整理你的料理紀錄、稱號與珍藏。</p></div></div>
+      <div class="profile-layout panel">
+        <div class="profile-main"><div class="profile-avatar" id="profileAvatar">👨‍🍳</div><div><p class="eyebrow">PLAYER</p><h2 id="profileNickname">星際新手</h2><p class="player-id">玩家 ID：<b id="playerId">SAU-000001</b> <button class="copy-id" id="copyPlayerId">複製</button></p><p class="profile-title" id="profileTitle">新手料理師</p></div></div>
+        <div class="profile-level"><div><b id="profileLevel">LV.1</b><span id="profileXP">0 / 100 XP</span></div><div class="progress-track"><div class="progress-fill" id="profileXPBar"></div></div></div>
+        <div class="profile-stats"><div><small>料理總數</small><b id="profileCooked">0</b></div><div><small>最高分</small><b id="profileBest">0</b></div><div><small>香腸收藏</small><b id="profileCollection">1 / 63</b></div></div>
+        <div class="profile-edit"><input id="nicknameInput" maxlength="16" placeholder="輸入你的暱稱"><button class="btn btn-secondary" id="saveNicknameBtn">儲存暱稱</button><button class="btn btn-secondary" id="randomNicknameBtn">隨機取名</button></div>
+        <div class="profile-collection"><div class="panel-head"><div><p class="eyebrow">FAVORITE COLLECTION</p><h3>我的香腸收藏</h3></div><span class="tiny-tag">已解鎖展示</span></div><div class="favorite-sausages" id="favoriteSausages"></div></div>
+      </div>
+    </section>
+    <section class="page" id="page-friends">
+      <div class="section-heading"><div><p class="eyebrow">CREW & CONNECTIONS</p><h2>好友基地</h2><p>用玩家 ID 找到朋友，一起挑戰料理紀錄。</p></div></div>
+      <div class="social-layout"><article class="panel"><h3>搜尋玩家</h3><div class="friend-search"><input id="friendSearchInput" placeholder="輸入玩家 ID"><button class="btn btn-primary" id="friendSearchBtn">搜尋</button></div><p class="settings-note" id="friendSearchResult">好友搜尋需要雲端帳號服務啟用後才能使用。</p></article><article class="panel"><div class="panel-head"><h3>好友列表</h3><span class="tiny-tag">線上功能準備中</span></div><div class="empty-social">🌠<b>你的星際好友會出現在這裡</b><span>完成雲端服務設定後，就能發送邀請、查看好友資料。</span></div></article></div>
+    </section>
+    <section class="page" id="page-leaderboard">
+      <div class="section-heading"><div><p class="eyebrow">GALAXY RANKING</p><h2>星際排行榜</h2><p>和各地料理高手比較成績。</p></div></div>
+      <div class="ranking-tabs"><button class="filter active">全球料理榜</button><button class="filter">本週高手榜</button><button class="filter">好友排行榜</button></div>
+      <div class="panel leaderboard-panel"><div class="leaderboard-row rank-head"><span>排名</span><span>玩家</span><span>最高分</span></div><div class="empty-social">🏆<b>排行榜即將開放</b><span>目前顯示的是介面預覽。正式全球排名需要雲端資料庫及伺服器驗證分數。</span></div></div>
+    </section>
+
+    <section class="page" id="page-records">
+      <div class="section-heading"><div><p class="eyebrow">YOUR JOURNEY</p><h2>成就與紀錄</h2><p>每一條香腸，都是成為大師的累積。</p></div></div>
+      <div class="record-stats" id="recordStats"></div>
+      <h3 class="subsection-title">🏅 成就清單</h3><div class="achievement-grid" id="achievementGrid"></div>
+      <div class="save-tools panel"><div><h3>💾 存檔管理</h3><p>進度會自動保存在目前瀏覽器。也可以匯出備份或匯入舊存檔。</p></div><div class="save-actions"><button class="btn btn-secondary" id="exportSaveBtn">匯出存檔</button><label class="btn btn-secondary file-label">匯入存檔<input type="file" id="importSaveInput" accept=".json,application/json"></label><button class="btn btn-danger" id="resetSaveBtn">重置進度</button></div></div>
+    </section>
+  </main>
+
+  <footer><button class="back-menu" id="backMenuBtn">← 回主選單</button> 香腸大師 · 每一面都要烤得剛剛好 <span id="saveStatus">● 已自動存檔</span></footer>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="script.js"></script>
+</body>
+</html>
